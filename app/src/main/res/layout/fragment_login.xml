@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    tools:context=".MainActivity"
+
+    android:background="@drawable/background_login">
+
+    <!-- App Name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="48dp"
+        android:text="MyShiftApp"
+        android:textColor="#4A63E7"
+        android:textSize="36sp"
+        android:textStyle="bold" />
+
+    <!-- ID / Username -->
+    <EditText
+        android:id="@+id/Username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:hint="ID Number"
+        android:inputType="number"
+        android:maxLength="9"
+        android:digits="0123456789"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Password -->
+    <EditText
+        android:id="@+id/Password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:maxLength="10"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Forgot Password -->
+    <TextView
+        android:id="@+id/ForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:text="Forgot password?"
+        android:textSize="14sp"
+        android:textColor="#4A63E7"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <!-- Login Button -->
+    <Button
+        android:id="@+id/Login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Login"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#4A63E7" />
+
+</LinearLayout>

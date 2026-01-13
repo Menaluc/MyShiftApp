@@ -68,10 +68,11 @@ public class UserStorage {
         return prefs.getString(KEY_USER_ID + userId + KEY_ROLE, "employee");
     }
 
+    /*
     public static void updatePassword(Context context, String userId, String newPassword) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putString(KEY_USER_ID + userId + KEY_PASS, newPassword).apply();
-    }
+    }*/
 
     // Called from ChangePasswordFragment: save new password + mark first login done
     public static void setPasswordAndMarkFirstLoginDone(Context context, String userId, String newPass) {
@@ -83,7 +84,8 @@ public class UserStorage {
     }
 
     //Backward compatibility if you still use this somewhere
+    /*
     public static boolean checkLogin(Context context, String userId, String password) {
         return checkPassword(context, userId, password);
-    }
+    }*/
 }

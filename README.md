@@ -1,2 +1,2 @@
-# shift-scheduler
+# MyShiftApp
 Shift scheduling app (Java, Firebase)

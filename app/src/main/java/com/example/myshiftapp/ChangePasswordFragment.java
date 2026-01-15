@@ -13,17 +13,7 @@ import androidx.fragment.app.Fragment;
 
 public class ChangePasswordFragment extends Fragment {
 
-    private static final String ARG_EMAIL = "arg_email";
-
     public ChangePasswordFragment() {}
-
-    public static ChangePasswordFragment newInstance(String email) {
-        ChangePasswordFragment f = new ChangePasswordFragment();
-        Bundle b = new Bundle();
-        b.putString(ARG_EMAIL, email);
-        f.setArguments(b);
-        return f;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,17 +25,11 @@ public class ChangePasswordFragment extends Fragment {
         EditText etConfirm = view.findViewById(R.id.etConfirmPassword);
         Button btnSave = view.findViewById(R.id.btnSavePassword);
 
-        String email = (getArguments() == null) ? null : getArguments().getString(ARG_EMAIL);
-
         btnSave.setOnClickListener(v -> {
-            if (TextUtils.isEmpty(email)) {
-                Toast.makeText(requireContext(), "Missing email", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             String newPass = safeText(etNewPass);
             String confirmPass = safeText(etConfirm);
 
+            // Basic validations
             if (TextUtils.isEmpty(newPass) || TextUtils.isEmpty(confirmPass)) {
                 Toast.makeText(requireContext(), "Please fill both fields", Toast.LENGTH_SHORT).show();
                 return;
@@ -56,35 +40,37 @@ public class ChangePasswordFragment extends Fragment {
                 return;
             }
 
+            // Password rules (same as before): max 10, at least 1 English letter + 1 digit, no Hebrew
             String error = validatePassword(newPass);
             if (error != null) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Save password + mark first login done (local until Firebase)
-            UserStorage.setPasswordAndMarkFirstLoginDone(requireContext(), email, newPass);
+            // TODO (Later): Implement REAL password change for a LOGGED-IN user using Firebase:
+            // FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            // user.updatePassword(newPass) ...
+            //
+            // For "Forgot password" we already use Firebase reset email in LoginFragment.
 
-            Toast.makeText(requireContext(), "Password updated successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(),
+                    "Change Password screen is ready. (TODO: connect to Firebase updatePassword)",
+                    Toast.LENGTH_LONG).show();
 
-            Fragment next = "manager".equals(UserStorage.getRole(requireContext(), email))
-                    ? new ManagerHomeFragment()
-                    : new EmployeeHomeFragment();
-
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, next)
-                    .commit();
+            // Optional: navigate back
+            requireActivity().getSupportFragmentManager().popBackStack();
         });
 
         return view;
     }
 
+    // Safely get trimmed text from EditText
     private String safeText(EditText enter) {
         if (enter == null || enter.getText() == null) return "";
         return enter.getText().toString().trim();
     }
 
+    // Returns null if valid, otherwise returns an error message
     private String validatePassword(String password) {
         if (password.length() > 10) return "Password must be at most 10 characters";
 
@@ -94,7 +80,7 @@ public class ChangePasswordFragment extends Fragment {
         for (int i = 0; i < password.length(); i++) {
             char c = password.charAt(i);
 
-            // Block Hebrew letters
+            // Block Hebrew letters (Unicode range)
             if (c >= '\u0590' && c <= '\u05FF') {
                 return "Password cannot contain Hebrew letters";
             }

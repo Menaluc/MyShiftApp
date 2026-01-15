@@ -22,7 +22,7 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    private EditText enterEmail; //  enterEmail
+    private EditText enterEmail;
     private EditText enterPassword;
     private TextView tvForgotPassword;
     private Button btnLogin;
@@ -35,22 +35,22 @@ public class LoginFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-// Views
+        // Views
         enterEmail = view.findViewById(R.id.Email);
         enterPassword = view.findViewById(R.id.Password);
         tvForgotPassword = view.findViewById(R.id.ForgotPassword);
         btnLogin = view.findViewById(R.id.Login);
 
-// Firebase
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-// Login
+        // Login
         btnLogin.setOnClickListener(v -> {
             String email = safeText(enterEmail);
             String password = safeText(enterPassword);
 
-// Basic validation
+            // Basic validation
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
@@ -61,7 +61,7 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-// Sign in Firebase Auth
+            // Sign in Firebase Auth
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         FirebaseUser user = mAuth.getCurrentUser();
@@ -78,7 +78,6 @@ public class LoginFragment extends Fragment {
                     );
         });
 
-// Forgot password (כרגע רק ניווט למסך שינוי סיסמה אצלכן)
         tvForgotPassword.setOnClickListener(v -> {
             String email = safeText(enterEmail);
 
@@ -87,15 +86,13 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-// אם עדיין משתמשים במסך ChangePasswordFragment פנימי:
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, ChangePasswordFragment.newInstance(email))
-                    .addToBackStack(null)
-                    .commit();
-
-// בהמשך (מומלץ) נעשה Firebase password reset:
-// mAuth.sendPasswordResetEmail(email) ...
+            mAuth.sendPasswordResetEmail(email)
+                    .addOnSuccessListener(aVoid ->
+                            Toast.makeText(requireContext(),
+                                    "Password reset email sent. Check your inbox.",
+                                    Toast.LENGTH_LONG).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
         });
 
         return view;
@@ -112,9 +109,14 @@ public class LoginFragment extends Fragment {
 
                     String role = doc.getString("role");
                     String fullName = doc.getString("fullName");
+                    String email = (mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getEmail() : "";
 
                     if (role == null) role = "employee";
                     if (fullName == null) fullName = "";
+                    if (email == null) email = "";
+
+                    // Save logged-in user locally (for Drawer + app restart)
+                    UserStorage.saveCurrentUser(requireContext(), uid, email, fullName, role);
 
                     navigateToHomeByRole(role, fullName);
                 })

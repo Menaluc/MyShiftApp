@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.firebase.auth.FirebaseAuth;
+
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -70,13 +72,29 @@ public class EmployeeHomeFragment extends Fragment {
 
             } else if (id == R.id.nav_payslips) {
                 Toast.makeText(requireContext(), "Payslips", Toast.LENGTH_SHORT).show();
-
+/*
             } else if (id == R.id.nav_logout) {
                 Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
                 // Next step: real logout + navigate to Login
-            }
+            }*/
 
-            drawerLayout.closeDrawer(GravityCompat.END);
+            }else if (id == R.id.nav_logout) {
+
+            // 1) Firebase logout
+            FirebaseAuth.getInstance().signOut();
+
+            // 2) Optional: short feedback
+            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
+
+            // 3) Navigate back to LoginFragment
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, new LoginFragment())
+                    .commit();
+        }
+
+
+        drawerLayout.closeDrawer(GravityCompat.END);
             return true;
         });
 

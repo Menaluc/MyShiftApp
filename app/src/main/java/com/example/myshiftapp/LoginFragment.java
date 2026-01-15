@@ -22,8 +22,8 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    private EditText enterEmail; // ביקשת שהשם יהיה enterEmail
-    private EditText enterPassword; // עקבי
+    private EditText enterEmail; //  enterEmail
+    private EditText enterPassword;
     private TextView tvForgotPassword;
     private Button btnLogin;
 

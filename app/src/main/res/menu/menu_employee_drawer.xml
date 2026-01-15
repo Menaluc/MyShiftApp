@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_employee_profile"
+        android:title="Employee Profile" />
+
+    <item
+        android:id="@+id/nav_schedule"
+        android:title="Shift Schedule" />
+
+    <item
+        android:id="@+id/nav_attendance"
+        android:title="Report Attendance" />
+
+    <item
+        android:id="@+id/nav_monthly_details"
+        android:title="Monthly Details" />
+
+    <item
+        android:id="@+id/nav_payslips"
+        android:title="Payslips" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Log out" />
+
+</menu>

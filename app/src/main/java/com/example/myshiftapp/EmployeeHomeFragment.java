@@ -7,14 +7,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.firebase.auth.FirebaseAuth;
-
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class EmployeeHomeFragment extends Fragment {
 
@@ -54,7 +53,7 @@ public class EmployeeHomeFragment extends Fragment {
             }
         });
 
-        // Menu actions (for now: Toast only)
+        // Menu actions
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -62,7 +61,11 @@ public class EmployeeHomeFragment extends Fragment {
                 Toast.makeText(requireContext(), "Employee Profile", Toast.LENGTH_SHORT).show();
 
             } else if (id == R.id.nav_schedule) {
-                Toast.makeText(requireContext(), "Shift Schedule", Toast.LENGTH_SHORT).show();
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new ShiftScheduleFragment())
+                        .addToBackStack(null)
+                        .commit();
 
             } else if (id == R.id.nav_attendance) {
                 Toast.makeText(requireContext(), "Report Attendance", Toast.LENGTH_SHORT).show();
@@ -72,29 +75,22 @@ public class EmployeeHomeFragment extends Fragment {
 
             } else if (id == R.id.nav_payslips) {
                 Toast.makeText(requireContext(), "Payslips", Toast.LENGTH_SHORT).show();
-/*
+
             } else if (id == R.id.nav_logout) {
+                FirebaseAuth.getInstance().signOut();
+
+                requireActivity().getSupportFragmentManager().popBackStack(null,
+                        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new LoginFragment())
+                        .commit();
+
                 Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
-                // Next step: real logout + navigate to Login
-            }*/
+            }
 
-            }else if (id == R.id.nav_logout) {
-
-            // 1) Firebase logout
-            FirebaseAuth.getInstance().signOut();
-
-            // 2) Optional: short feedback
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
-
-            // 3) Navigate back to LoginFragment
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, new LoginFragment())
-                    .commit();
-        }
-
-
-        drawerLayout.closeDrawer(GravityCompat.END);
+            drawerLayout.closeDrawer(GravityCompat.END);
             return true;
         });
 

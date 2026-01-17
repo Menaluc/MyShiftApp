@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ManagerHomeFragment extends Fragment {
@@ -32,27 +34,46 @@ public class ManagerHomeFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_manager_home, container, false);
 
-        // Read full name from arguments
-        String fullName = (getArguments() == null)
-                ? ""
-                : getArguments().getString(ARG_FULL_NAME, "");
-
-        // Views from your XML
+        // Welcome text
+        String fullName = (getArguments() == null) ? "" : getArguments().getString(ARG_FULL_NAME, "");
         TextView tvWelcome = view.findViewById(R.id.tvWelcome);
-        Button btnLogout = view.findViewById(R.id.btnManagerLogout);
-
-        // Set welcome text
         tvWelcome.setText("Welcome " + fullName);
 
-        // Logout (Firebase)
-        btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show();
+        // Drawer + menu
+        DrawerLayout drawerLayout = view.findViewById(R.id.managerDrawer);
+        NavigationView navView = view.findViewById(R.id.managerNavView);
+        ImageButton btnMenu = view.findViewById(R.id.btnMenu);
 
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragmentContainer, new LoginFragment())
-                    .commit();
+        // Open/close right drawer
+        btnMenu.setOnClickListener(v -> {
+            if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                drawerLayout.closeDrawer(GravityCompat.END);
+            } else {
+                drawerLayout.openDrawer(GravityCompat.END);
+            }
+        });
+
+        // Menu clicks
+        navView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_settings) {
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new ManagerSettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+            } else if (id == R.id.nav_logout) {
+                FirebaseAuth.getInstance().signOut();
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new LoginFragment())
+                        .commit();
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.END);
+            return true;
         });
 
         return view;

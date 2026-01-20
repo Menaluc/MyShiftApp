@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_manager_profile"
+        android:title="Manager Profile" />
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Settings" />
+
+    <item
+        android:id="@+id/nav_employees"
+        android:title="Employees and Constraints" />
+
+    <item
+        android:id="@+id/nav_build_schedule"
+        android:title="Build Schedule (AI)" />
+
+    <item
+        android:id="@+id/nav_attendance_approvals"
+        android:title="Attendance Approvals" />
+
+    <item
+        android:id="@+id/nav_payslips"
+        android:title="Payslips" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Log out" />
+
+</menu>

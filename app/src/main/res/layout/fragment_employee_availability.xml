@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit Availability"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Mark the shifts you CAN work"
+            android:textSize="14sp" />
+
+        <!-- ====== SUNDAY ====== -->
+        <TextView
+            android:id="@+id/tvSun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Sunday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowSun"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbSunMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbSunEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbSunNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <!-- ====== MONDAY ====== -->
+        <TextView
+            android:id="@+id/tvMon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Monday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowMon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbMonMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbMonEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbMonNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <!-- ====== TUESDAY ====== -->
+        <TextView
+            android:id="@+id/tvTue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Tuesday"
+            android:textStyle="bold" />
+
+        <!-- ====== WEDNESDAY ====== -->
+        <LinearLayout
+            android:id="@+id/rowTue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbTueMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbTueEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbTueNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Wednesday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowWed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbWedMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbWedEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbWedNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <!-- ====== THURSDAY ====== -->
+        <TextView
+            android:id="@+id/tvThu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Thursday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowThu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbThuMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbThuEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbThuNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <!-- ====== FRIDAY ====== -->
+        <TextView
+            android:id="@+id/tvFri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Friday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowFri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbFriMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbFriEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbFriNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <!-- ====== SATURDAY ====== -->
+        <TextView
+            android:id="@+id/tvSat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Saturday"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/rowSat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbSatMorning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Morning" />
+
+            <CheckBox
+                android:id="@+id/cbSatEvening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Evening" />
+
+            <CheckBox
+                android:id="@+id/cbSatNight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Night" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:text="Save Availability" />
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

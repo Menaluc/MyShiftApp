@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Manager Settings"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchCanSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow employee to submit constrains"
+            android:layout_marginTop="16dp"
+            />
+
+        <!-- Shift types -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Shift Types"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/rgShiftTypes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rb2Shifts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 shifts (Morning / Evening)" />
+
+                <RadioButton
+                    android:id="@+id/rb3Shifts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 shifts (Morning / Evening / Night)" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Morning shift hours (HH:MM)"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etMorningStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Start (e.g. 08:00)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etMorningEnd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="End (e.g. 16:00)"
+                    android:inputType="text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Evening shift hours (HH:MM)"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etEveningStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Start (e.g. 16:00)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etEveningEnd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="End (e.g. 00:00)"
+                    android:inputType="text" />
+
+                <TextView
+                    android:id="@+id/tvNightTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Night shift hours (HH:MM)"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etNightStart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Start (e.g. 00:00)"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/etNightEnd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="End (e.g. 08:00)"
+                    android:inputType="text" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Employees per shift"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etEmployeesPerShift"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="e.g. 3"
+                    android:inputType="number" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Work days"
+                    android:textStyle="bold" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- Morning hours -->
+
+        <!-- Evening hours -->
+
+        <!-- Night hours (enabled only if 3 shifts) -->
+
+        <!-- Employees per shift -->
+
+        <!-- Work days -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/rgWorkDays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbSunThu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday - Thursday" />
+
+                <RadioButton
+                    android:id="@+id/rbSunFri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday - Friday" />
+
+                <RadioButton
+                    android:id="@+id/rbSunSat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunday - Saturday (24/7)" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSaveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_weight="0.6"
+            android:text="Save Settings" />
+
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Back" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text=""
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

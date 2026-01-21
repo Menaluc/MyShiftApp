@@ -11,7 +11,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,48 +40,15 @@ public class LoginFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        // Views
         enterEmail = view.findViewById(R.id.Email);
         enterPassword = view.findViewById(R.id.Password);
         tvForgotPassword = view.findViewById(R.id.ForgotPassword);
         btnLogin = view.findViewById(R.id.Login);
 
-        // Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Login
-        btnLogin.setOnClickListener(v -> {
-            String email = safeText(enterEmail);
-            String password = safeText(enterPassword);
-
-            // Basic validation
-            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(requireContext(), "Please enter a valid email", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Sign in Firebase Auth
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener(authResult -> {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user == null) {
-                            Toast.makeText(requireContext(), "Login failed (no user)", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        String uid = user.getUid();
-                        loadUserAndNavigate(uid);
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        });
+        btnLogin.setOnClickListener(v -> doLogin());
 
         tvForgotPassword.setOnClickListener(v -> {
             String email = safeText(enterEmail);
@@ -98,6 +70,53 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // ✅ AUTO-LOGIN: Firebase הוא האמת (לא תלוי UserStorage)
+        FirebaseUser current = mAuth.getCurrentUser();
+        if (current != null) {
+            // אם יש role שמור - נשתמש בו מהר, אחרת נטען מ-Firestore
+            String role = UserStorage.getRole(requireContext());
+            String fullName = UserStorage.getFullName(requireContext());
+
+            if (!TextUtils.isEmpty(role)) {
+                navigateToHomeByRole(role, fullName);
+            } else {
+                loadUserAndNavigate(current.getUid());
+            }
+        }
+    }
+
+    private void doLogin() {
+        String email = safeText(enterEmail);
+        String password = safeText(enterPassword);
+
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(requireContext(), "Please enter a valid email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user == null) {
+                        Toast.makeText(requireContext(), "Login failed (no user)", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    loadUserAndNavigate(user.getUid());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+    }
+
     private void loadUserAndNavigate(String uid) {
         db.collection("users").document(uid)
                 .get()
@@ -115,7 +134,6 @@ public class LoginFragment extends Fragment {
                     if (fullName == null) fullName = "";
                     if (email == null) email = "";
 
-                    // Save logged-in user locally (for Drawer + app restart)
                     UserStorage.saveCurrentUser(requireContext(), uid, email, fullName, role);
 
                     navigateToHomeByRole(role, fullName);
@@ -126,17 +144,22 @@ public class LoginFragment extends Fragment {
     }
 
     private void navigateToHomeByRole(String role, String fullName) {
-        Fragment next = "manager".equalsIgnoreCase(role)
-                ? ManagerHomeFragment.newInstance(fullName)
-                : EmployeeHomeFragment.newInstance(fullName);
+        NavController navController = NavHostFragment.findNavController(this);
 
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, next)
-                .commit();
+        int destId = "manager".equalsIgnoreCase(role)
+                ? R.id.managerHomeFragment
+                : R.id.employeeHomeFragment;
+
+        Bundle args = new Bundle();
+        args.putString("fullName", fullName);
+
+        NavOptions navOptions = new NavOptions.Builder()
+                .setPopUpTo(R.id.loginFragment, true)
+                .build();
+
+        navController.navigate(destId, args, navOptions);
     }
 
-    // Safely get trimmed text from EditText
     private String safeText(EditText enter) {
         if (enter == null || enter.getText() == null) return "";
         return enter.getText().toString().trim();

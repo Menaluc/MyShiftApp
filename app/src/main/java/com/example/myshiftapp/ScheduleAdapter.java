@@ -1,12 +1,12 @@
 package com.example.myshiftapp;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,19 +65,17 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.CellVH
 
         boolean isHeader = (row == 0 || col == 0);
 
-        // Default style
-        holder.tv.setTextColor(ContextCompat.getColor(context, android.R.color.black));
-        holder.tv.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
+        // תמיד לנקות קודם
+        holder.tv.setOnClickListener(null);
+        holder.tv.setTypeface(null, Typeface.NORMAL);
 
         if (isHeader) {
-            // Header cells (top row / first column)
-            holder.tv.setTextColor(ContextCompat.getColor(context, android.R.color.black));
-            holder.tv.setBackgroundColor(ContextCompat.getColor(context, android.R.color.darker_gray));
-            holder.tv.setOnClickListener(null);
+            holder.tv.setBackgroundResource(R.drawable.bg_cell_header);
+            holder.tv.setTypeface(null, Typeface.BOLD);
             return;
         }
 
-        // Real cell => build key: "Sun_Morning"
+        // Real cell => key: "Sun_Morning"
         String day = days.get(col - 1);
         String shift = shifts.get(row - 1);
         String key = day + "_" + shift;
@@ -85,26 +83,23 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.CellVH
         Boolean val = availability.get(key);
 
         if (val == null) {
-            // Not selected yet
-            holder.tv.setText(""); // keep clean
-            holder.tv.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
+            holder.tv.setText("");
+            holder.tv.setBackgroundResource(R.drawable.bg_cell_empty);
         } else if (val) {
-            // Available
             holder.tv.setText("✓");
-            holder.tv.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_green_light));
+            holder.tv.setBackgroundResource(R.drawable.cell_green);
         } else {
-            // Not available
             holder.tv.setText("X");
-            holder.tv.setBackgroundColor(ContextCompat.getColor(context, android.R.color.holo_red_light));
+            holder.tv.setBackgroundResource(R.drawable.cell_red);
         }
 
         holder.tv.setOnClickListener(v -> {
             if (!canEdit) return;
 
-            // Cycle: null -> true -> false -> true ...
+            Boolean currentVal = availability.get(key);
             Boolean newVal;
-            if (val == null) newVal = true;
-            else newVal = !val;
+            if (currentVal == null) newVal = true;
+            else newVal = !currentVal;
 
             availability.put(key, newVal);
             notifyItemChanged(position);

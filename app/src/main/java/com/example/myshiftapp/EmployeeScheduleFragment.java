@@ -8,7 +8,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,8 +27,8 @@ public class EmployeeScheduleFragment extends Fragment {
     public EmployeeScheduleFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_employee_schedule, container, false);
 
@@ -35,13 +39,13 @@ public class EmployeeScheduleFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        // Back -> return to previous screen
         btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
 
-        // Next step: availability screen (for now placeholder)
-        btnOpenAvailability.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Open Availability (next step)", Toast.LENGTH_SHORT).show()
-        );
+        // ✅ מעבר לטבלת הזמינות (ShiftScheduleFragment)
+        btnOpenAvailability.setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.shiftScheduleFragment);
+        });
 
         loadShiftConfig();
 
@@ -67,48 +71,39 @@ public class EmployeeScheduleFragment extends Fragment {
             return;
         }
 
-        Boolean canSubmit = doc.getBoolean("canSubmitConstraints"); // matches your Firestore
-        Long employeesPerShift = doc.getLong("employeesPerShift");  // number
-        String eveningStart = doc.getString("eveningStart");
-        String eveningEnd = doc.getString("eveningEnd");
+        Boolean canSubmit = doc.getBoolean("canSubmitConstraints");
+        Long employeesPerShift = doc.getLong("employeesPerShift");
+        String shiftType = doc.getString("shiftType");   // "2" / "3"
+        String workDays  = doc.getString("workDays");    // SunThu / SunFri / SunSat
+
         String morningStart = doc.getString("morningStart");
-        String morningEnd = doc.getString("morningEnd");
-        String nightStart = doc.getString("nightStart");
-        String nightEnd = doc.getString("nightEnd");
-        String shiftType = doc.getString("shiftType");             // "2" / "3"
-        String workDays = doc.getString("workDays");               // "SunThu"
+        String morningEnd   = doc.getString("morningEnd");
+        String eveningStart = doc.getString("eveningStart");
+        String eveningEnd   = doc.getString("eveningEnd");
+        String nightStart   = doc.getString("nightStart");
+        String nightEnd     = doc.getString("nightEnd");
 
         if (canSubmit == null) canSubmit = false;
         if (shiftType == null) shiftType = "2";
+        if (workDays == null) workDays = "SunThu";
 
         StringBuilder sb = new StringBuilder();
+        sb.append("Shift type: ").append(shiftType).append("\n\n");
 
-        sb.append("Shift type: ").append(shiftType).append(" shifts").append("\n\n");
-
-        sb.append("Morning: ")
-                .append(nullSafe(morningStart)).append(" - ").append(nullSafe(morningEnd))
-                .append("\n");
-
-        sb.append("Evening: ")
-                .append(nullSafe(eveningStart)).append(" - ").append(nullSafe(eveningEnd))
-                .append("\n");
+        sb.append("Morning: ").append(ns(morningStart)).append(" - ").append(ns(morningEnd)).append("\n");
+        sb.append("Evening: ").append(ns(eveningStart)).append(" - ").append(ns(eveningEnd)).append("\n");
 
         if ("3".equals(shiftType)) {
-            sb.append("Night: ")
-                    .append(nullSafe(nightStart)).append(" - ").append(nullSafe(nightEnd))
-                    .append("\n");
+            sb.append("Night: ").append(ns(nightStart)).append(" - ").append(ns(nightEnd)).append("\n");
         }
 
-        sb.append("\nEmployees per shift: ")
-                .append(employeesPerShift == null ? "?" : employeesPerShift)
-                .append("\n");
-
-        sb.append("Work days: ").append(nullSafe(workDays)).append("\n");
+        sb.append("\nEmployees per shift: ").append(employeesPerShift == null ? "?" : employeesPerShift).append("\n");
+        sb.append("Work days: ").append(workDays).append("\n");
 
         tvConfigSummary.setText(sb.toString());
 
         if (canSubmit) {
-            tvSubmitStatus.setText("Availability submission is OPEN ");
+            tvSubmitStatus.setText("Availability submission is OPEN");
             btnOpenAvailability.setEnabled(true);
         } else {
             tvSubmitStatus.setText("Availability submission is CLOSED (waiting for manager)");
@@ -116,7 +111,5 @@ public class EmployeeScheduleFragment extends Fragment {
         }
     }
 
-    private String nullSafe(String s) {
-        return (s == null) ? "" : s;
-    }
+    private String ns(String s) { return s == null ? "" : s; }
 }

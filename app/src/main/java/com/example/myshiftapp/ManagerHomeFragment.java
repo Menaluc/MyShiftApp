@@ -60,7 +60,7 @@ public class ManagerHomeFragment extends Fragment {
             if (id == R.id.nav_settings) {
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragmentContainer, new ManagerSettingsFragment())
+                        .replace(R.id.contentManager, new ManagerSettingsFragment())
                         .addToBackStack(null)
                         .commit();
 
@@ -68,7 +68,7 @@ public class ManagerHomeFragment extends Fragment {
                 FirebaseAuth.getInstance().signOut();
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragmentContainer, new LoginFragment())
+                        .replace(R.id.contentManager, new LoginFragment())
                         .commit();
             }
 

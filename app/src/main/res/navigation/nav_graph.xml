@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.myshiftapp.LoginFragment"
+        android:label="Login" />
+
+    <fragment
+        android:id="@+id/employeeHomeFragment"
+        android:name="com.example.myshiftapp.EmployeeHomeFragment"
+        android:label="Employee Home" />
+
+    <fragment
+        android:id="@+id/managerHomeFragment"
+        android:name="com.example.myshiftapp.ManagerHomeFragment"
+        android:label="Manager Home" />
+
+    <fragment
+        android:id="@+id/employeeProfileFragment"
+        android:name="com.example.myshiftapp.EmployeeProfileFragment"
+        android:label="Employee Profile" />
+
+    <fragment
+        android:id="@+id/employeeScheduleFragment"
+        android:name="com.example.myshiftapp.EmployeeScheduleFragment"
+        android:label="Shift Schedule" />
+
+    <fragment
+        android:id="@+id/shiftScheduleFragment"
+        android:name="com.example.myshiftapp.ShiftScheduleFragment"
+        android:label="Availability Grid" />
+
+    <fragment
+        android:id="@+id/employeeAttendanceFragment"
+        android:name="com.example.myshiftapp.EmployeeAttendanceFragment"
+        android:label="Report Attendance" />
+
+    <fragment
+        android:id="@+id/employeeMonthlyDetailsFragment"
+        android:name="com.example.myshiftapp.EmployeeMonthlyDetailsFragment"
+        android:label="Monthly Details" />
+
+    <fragment
+        android:id="@+id/employeePayslipsFragment"
+        android:name="com.example.myshiftapp.EmployeePayslipsFragment"
+        android:label="Payslips" />
+
+</navigation>

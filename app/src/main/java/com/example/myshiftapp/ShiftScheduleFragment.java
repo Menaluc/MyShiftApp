@@ -3,11 +3,14 @@ package com.example.myshiftapp;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,12 +42,32 @@ public class ShiftScheduleFragment extends Fragment {
 
         RecyclerView rv = view.findViewById(R.id.rvSchedule);
 
-        // נטען את הגדרות המשמרות מה-manager (shift_config)
+        Button btnSubmit = view.findViewById(R.id.btnSubmit);
+        Button btnBack   = view.findViewById(R.id.btnBack);
+
+        // ✅ SUBMIT: רק הודעה, לא חוזר אחורה
+        if (btnSubmit != null) {
+            btnSubmit.setOnClickListener(v -> {
+                Toast.makeText(requireContext(),
+                        "ההגשה התקבלה ✅",
+                        Toast.LENGTH_SHORT).show();
+                // לא עושים navigateUp()
+            });
+        }
+
+        // ✅ BACK: חוזר למסך הקודם (המסך ביניים)
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                NavHostFragment.findNavController(this).navigateUp();
+            });
+        }
+
+        // Load shift config from Firestore
         db.collection("settings").document("shift_config")
                 .get()
                 .addOnSuccessListener(cfg -> {
-                    String workDays = cfg.getString("workDays");    // SunThu / SunFri / SunSat
-                    String shiftType = cfg.getString("shiftType");  // "2" / "3"
+                    String workDays = cfg.getString("workDays");
+                    String shiftType = cfg.getString("shiftType");
                     Boolean canSubmit = cfg.getBoolean("canSubmitConstraints");
 
                     if (workDays == null) workDays = "SunThu";
@@ -58,7 +81,6 @@ public class ShiftScheduleFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(requireContext(), "Failed to load shift settings", Toast.LENGTH_SHORT).show();
-                    // fallback default
                     List<String> days = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu");
                     List<String> shifts = Arrays.asList("Morning", "Evening");
                     loadUserAvailabilityAndSetup(rv, days, shifts, true);
@@ -79,7 +101,6 @@ public class ShiftScheduleFragment extends Fragment {
 
         String uid = user.getUid();
 
-        // נטען availability מתוך users/{uid}.availability (Map)
         db.collection("users").document(uid)
                 .get()
                 .addOnSuccessListener(doc -> {
@@ -127,11 +148,12 @@ public class ShiftScheduleFragment extends Fragment {
 
                     if (uid == null) return;
 
-                    // שמירה: users/{uid}.availability.<key> = true/false
                     db.collection("users").document(uid)
                             .update("availability." + key, newValue)
                             .addOnFailureListener(e ->
-                                    Toast.makeText(requireContext(), "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(),
+                                            "Save failed: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
                             );
                 }
         );
@@ -143,25 +165,20 @@ public class ShiftScheduleFragment extends Fragment {
         }
     }
 
+
     private List<String> buildCells(List<String> days, List<String> shifts) {
         List<String> cells = new ArrayList<>();
+        cells.add("");
+        cells.addAll(days);
 
-        // Row 0 headers
-        cells.add("");        // top-left
-        cells.addAll(days);   // days
-
-        // Shift rows
         for (String shift : shifts) {
-            cells.add(shift); // first column
-            for (int i = 0; i < days.size(); i++) {
-                cells.add("");
-            }
+            cells.add(shift);
+            for (int i = 0; i < days.size(); i++) cells.add("");
         }
         return cells;
     }
 
     private List<String> buildDays(String workDays) {
-        // SunThu / SunFri / SunSat
         if ("SunFri".equalsIgnoreCase(workDays)) {
             return Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu", "Fri");
         } else if ("SunSat".equalsIgnoreCase(workDays)) {
@@ -172,7 +189,6 @@ public class ShiftScheduleFragment extends Fragment {
     }
 
     private List<String> buildShifts(String shiftType) {
-        // "2" / "3"
         if ("3".equals(shiftType)) {
             return Arrays.asList("Morning", "Evening", "Night");
         } else {

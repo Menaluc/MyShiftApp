@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,9 +38,13 @@ public class EmployeeScheduleFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        btnBack.setOnClickListener(v -> requireActivity().onBackPressed());
+        // ✅ תיקון: Back דרך NAV (במקום onBackPressed)
+        btnBack.setOnClickListener(v -> {
+            NavHostFragment.findNavController(this).navigateUp();
+        });
 
-        // ✅ מעבר לטבלת הזמינות (ShiftScheduleFragment)
+        // ✅ זה השינוי שדיברנו עליו:
+        // מעבר לטבלת הזמינות (ShiftScheduleFragment) דרך NAV
         btnOpenAvailability.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.shiftScheduleFragment);

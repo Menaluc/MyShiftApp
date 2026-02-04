@@ -2,7 +2,6 @@ package com.example.myshiftapp;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,17 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ManagerSettingsFragment extends Fragment {
@@ -39,10 +45,13 @@ public class ManagerSettingsFragment extends Fragment {
     private RadioGroup rgWorkDays;
     private RadioButton rbSunThu, rbSunFri, rbSunSat;
 
+    // ✅ Deadline field (picker-based)
+    private EditText etSubmitCloseAt;
+    private Long submitCloseAtMillis = null;
+
     private Button btnSaveSettings, btnBack;
     private TextView tvStatus;
 
-    // Firestore path: settings/shift_config
     private static final String SETTINGS_COLLECTION = "settings";
     private static final String SETTINGS_DOC = "shift_config";
 
@@ -54,10 +63,8 @@ public class ManagerSettingsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_manager_settings, container, false);
 
-        // Firebase
         db = FirebaseFirestore.getInstance();
 
-        // Views
         switchCanSubmit = view.findViewById(R.id.switchCanSubmit);
 
         rgShiftTypes = view.findViewById(R.id.rgShiftTypes);
@@ -80,15 +87,20 @@ public class ManagerSettingsFragment extends Fragment {
         rbSunFri = view.findViewById(R.id.rbSunFri);
         rbSunSat = view.findViewById(R.id.rbSunSat);
 
+        etSubmitCloseAt = view.findViewById(R.id.etSubmitCloseAt);
+
         btnSaveSettings = view.findViewById(R.id.btnSaveSettings);
         btnBack = view.findViewById(R.id.btnBack);
         tvStatus = view.findViewById(R.id.tvStatus);
 
-        // Load existing settings from Firestore
+        // Load settings
         loadSettingsFromFirestore();
 
         // When shift type changes, enable/disable night fields
         rgShiftTypes.setOnCheckedChangeListener((group, checkedId) -> updateNightFieldsVisibility());
+
+        // ✅ Deadline pickers
+        etSubmitCloseAt.setOnClickListener(v -> openDeadlinePickers());
 
         // Save
         btnSaveSettings.setOnClickListener(v -> saveSettingsToFirestore());
@@ -134,6 +146,14 @@ public class ManagerSettingsFragment extends Fragment {
                     else if ("SunSat".equals(workDays)) rbSunSat.setChecked(true);
                     else rbSunThu.setChecked(true);
 
+                    // ✅ Load deadline millis
+                    submitCloseAtMillis = doc.getLong("submitCloseAtMillis");
+                    if (submitCloseAtMillis != null) {
+                        etSubmitCloseAt.setText(formatMillis(submitCloseAtMillis));
+                    } else {
+                        etSubmitCloseAt.setText("");
+                    }
+
                     tvStatus.setText("Settings loaded.");
                     updateNightFieldsVisibility();
                 })
@@ -144,9 +164,7 @@ public class ManagerSettingsFragment extends Fragment {
     }
 
     private void saveSettingsToFirestore() {
-        // Read UI
         boolean canSubmit = switchCanSubmit.isChecked();
-
         String shiftType = rb3Shifts.isChecked() ? "3" : "2";
 
         String morningStart = safeText(etMorningStart);
@@ -164,7 +182,13 @@ public class ManagerSettingsFragment extends Fragment {
         else if (rbSunSat.isChecked()) workDays = "SunSat";
         else workDays = "SunThu";
 
-        // Basic validation
+        // ✅ If submissions are enabled, require a deadline
+        if (canSubmit && submitCloseAtMillis == null) {
+            Toast.makeText(requireContext(), "Please choose a submission deadline", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validation times
         if (!isValidTime(morningStart) || !isValidTime(morningEnd) ||
                 !isValidTime(eveningStart) || !isValidTime(eveningEnd)) {
             Toast.makeText(requireContext(), "Please enter valid times (HH:MM)", Toast.LENGTH_SHORT).show();
@@ -177,7 +201,6 @@ public class ManagerSettingsFragment extends Fragment {
                 return;
             }
         } else {
-            // If 2 shifts - clear night values
             nightStart = "";
             nightEnd = "";
         }
@@ -200,7 +223,6 @@ public class ManagerSettingsFragment extends Fragment {
             return;
         }
 
-        // Build data map
         Map<String, Object> data = new HashMap<>();
         data.put("canSubmitConstraints", canSubmit);
         data.put("shiftType", shiftType);
@@ -216,7 +238,9 @@ public class ManagerSettingsFragment extends Fragment {
         data.put("employeesPerShift", employeesPerShift);
         data.put("workDays", workDays);
 
-        // Save to Firestore
+        // ✅ Save deadline (millis)
+        data.put("submitCloseAtMillis", submitCloseAtMillis);
+
         db.collection(SETTINGS_COLLECTION).document(SETTINGS_DOC)
                 .set(data)
                 .addOnSuccessListener(unused -> {
@@ -229,14 +253,45 @@ public class ManagerSettingsFragment extends Fragment {
                 });
     }
 
+    private void openDeadlinePickers() {
+        // 1) pick date
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select deadline date")
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            // build calendar from selected date
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(selection);
+
+            // 2) pick time
+            MaterialTimePicker timePicker = new MaterialTimePicker.Builder()
+                    .setTitleText("Select deadline time")
+                    .setTimeFormat(TimeFormat.CLOCK_24H)
+                    .build();
+
+            timePicker.addOnPositiveButtonClickListener(v -> {
+                cal.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                cal.set(Calendar.MINUTE, timePicker.getMinute());
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                submitCloseAtMillis = cal.getTimeInMillis();
+                etSubmitCloseAt.setText(formatMillis(submitCloseAtMillis));
+            });
+
+            timePicker.show(getParentFragmentManager(), "timePicker");
+        });
+
+        datePicker.show(getParentFragmentManager(), "datePicker");
+    }
+
     private void updateNightFieldsVisibility() {
         boolean isThreeShifts = rb3Shifts.isChecked();
 
         etNightStart.setEnabled(isThreeShifts);
         etNightEnd.setEnabled(isThreeShifts);
 
-        // Optional: also disable title
-        // tvNightTitle is inside your XML (id=tvNightTitle)
         View root = getView();
         if (root != null) {
             TextView tvNightTitle = root.findViewById(R.id.tvNightTitle);
@@ -251,6 +306,11 @@ public class ManagerSettingsFragment extends Fragment {
 
     private String defaultStr(String s) {
         return (s == null) ? "" : s;
+    }
+
+    private String formatMillis(long millis) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return sdf.format(new Date(millis));
     }
 
     // Very simple HH:MM validation (00-23 : 00-59)

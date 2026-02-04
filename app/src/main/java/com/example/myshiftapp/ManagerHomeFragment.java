@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,11 +59,13 @@ public class ManagerHomeFragment extends Fragment {
             int id = item.getItemId();
 
             if (id == R.id.nav_settings) {
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.contentManager, new ManagerSettingsFragment())
-                        .addToBackStack(null)
-                        .commit();
+//                requireActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.contentManager, new ManagerSettingsFragment())
+//                        .addToBackStack(null)
+//                        .commit();
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_managerHome_to_managerSettings);
 
             } else if (id == R.id.nav_logout) {
                 FirebaseAuth.getInstance().signOut();

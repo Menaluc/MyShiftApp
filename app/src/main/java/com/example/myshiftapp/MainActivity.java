@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         TextView menuAttendance = findViewById(R.id.menuAttendance);
         TextView menuMonthly = findViewById(R.id.menuMonthly);
         TextView menuPayslips = findViewById(R.id.menuPayslips);
+        TextView menuManagerSettings = findViewById(R.id.menuManagerSettings); // ✅ NEW
         TextView menuLogout = findViewById(R.id.menuLogout);
 
         boolean isLoggedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             menuAttendance.setVisibility(View.GONE);
             menuMonthly.setVisibility(View.GONE);
             menuPayslips.setVisibility(View.GONE);
+            menuManagerSettings.setVisibility(View.GONE); // ✅ NEW
             menuLogout.setVisibility(View.GONE);
         } else {
             menuLogout.setVisibility(View.VISIBLE);
@@ -68,12 +70,16 @@ public class MainActivity extends AppCompatActivity {
                 menuAttendance.setVisibility(View.GONE);
                 menuMonthly.setVisibility(View.GONE);
                 menuPayslips.setVisibility(View.GONE);
+
+                menuManagerSettings.setVisibility(View.VISIBLE); // ✅ NEW
             } else {
                 menuProfile.setVisibility(View.VISIBLE);
                 menuSchedule.setVisibility(View.VISIBLE);
                 menuAttendance.setVisibility(View.VISIBLE);
                 menuMonthly.setVisibility(View.VISIBLE);
                 menuPayslips.setVisibility(View.VISIBLE);
+
+                menuManagerSettings.setVisibility(View.GONE); // ✅ NEW
             }
         }
 
@@ -99,6 +105,12 @@ public class MainActivity extends AppCompatActivity {
 
         menuPayslips.setOnClickListener(v -> {
             safeNavigate(R.id.employeePayslipsFragment);
+            drawerLayout.closeDrawers();
+        });
+
+        // ✅ NEW: Manager Settings navigation (only visible for manager anyway)
+        menuManagerSettings.setOnClickListener(v -> {
+            safeNavigate(R.id.managerSettingsFragment);
             drawerLayout.closeDrawers();
         });
 

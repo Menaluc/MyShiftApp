@@ -40,7 +40,18 @@
             android:layout_marginTop="20dp"
             android:text="Submit Availability"
             android:enabled="false" />
-
+        <Button
+            android:id="@+id/btnViewSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Full Schedule"
+            android:layout_marginTop="12dp" />
+        <Button
+            android:id="@+id/btnViewFullSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Full Schedule"
+            android:layout_marginTop="12dp"/>
         <Button
             android:id="@+id/btnBack"
             android:layout_width="match_parent"

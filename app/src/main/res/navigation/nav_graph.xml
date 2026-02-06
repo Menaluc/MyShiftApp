@@ -31,6 +31,10 @@
         <action
             android:id="@+id/action_managerHome_to_managerBuildSchedule"
             app:destination="@id/managerBuildScheduleFragment" />
+        <action
+            android:id="@+id/action_employeeSchedule_to_fullSchedule"
+            app:destination="@id/employeeFullScheduleFragment" />
+
     </fragment>
 
     <fragment
@@ -77,5 +81,23 @@
         android:id="@+id/managerBuildScheduleFragment"
         android:name="com.example.myshiftapp.ManagerBuildScheduleFragment"
         android:label="Build Schedule" />
+    <fragment
+        android:id="@+id/employeeFullScheduleFragment"
+        android:name="com.example.myshiftapp.EmployeeFullScheduleFragment"
+        android:label="Full Schedule" />
+    <fragment
+        android:id="@+id/employeeFullScheduleFragment"
+        android:name="com.example.myshiftapp.EmployeeFullScheduleFragment"
+        android:label="Weekly Schedule" />
+    <fragment
+        android:id="@+id/employeeScheduleFragment"
+        android:name="com.example.myshiftapp.EmployeeScheduleFragment"
+        android:label="Shift Schedule">
+
+        <action
+            android:id="@+id/action_employeeSchedule_to_fullSchedule"
+            app:destination="@id/employeeFullScheduleFragment" />
+    </fragment>
+
 
 </navigation>

@@ -9,13 +9,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -41,68 +42,132 @@ public class ShiftScheduleFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
 
         RecyclerView rv = view.findViewById(R.id.rvSchedule);
-
         Button btnSubmit = view.findViewById(R.id.btnSubmit);
-        Button btnBack   = view.findViewById(R.id.btnBack);
+        Button btnBack = view.findViewById(R.id.btnBack);
 
-        // ✅ SUBMIT: רק הודעה, לא חוזר אחורה
-        if (btnSubmit != null) {
-            btnSubmit.setOnClickListener(v -> {
-                Toast.makeText(requireContext(),
-                        "ההגשה התקבלה ✅",
-                        Toast.LENGTH_SHORT).show();
-                // לא עושים navigateUp()
-            });
-        }
-
-        // ✅ BACK: חוזר למסך הקודם (המסך ביניים)
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> {
-                NavHostFragment.findNavController(this).navigateUp();
-            });
+            btnBack.setOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
         }
 
-        // Load shift config from Firestore
-        db.collection("settings").document("shift_config")
+// 1) Load scheduleConfig/currentWeek (open/deadline/weekId)
+        db.collection("scheduleConfig").document("currentWeek")
                 .get()
                 .addOnSuccessListener(cfg -> {
-                    String workDays = cfg.getString("workDays");
-                    String shiftType = cfg.getString("shiftType");
-                    Boolean canSubmit = cfg.getBoolean("canSubmitConstraints");
 
-                    if (workDays == null) workDays = "SunThu";
-                    if (shiftType == null) shiftType = "2";
-                    boolean canEdit = canSubmit != null && canSubmit;
+                    Boolean submissionOpen = cfg.getBoolean("submissionOpen");
+                    Long deadlineMillis = cfg.getLong("submissionDeadlineMillis");
 
-                    List<String> days = buildDays(workDays);
-                    List<String> shifts = buildShifts(shiftType);
+// NEW: currentWeekId (final, so we can use inside lambdas)
+                    String weekIdRaw = cfg.getString("currentWeekId");
+                    final String weekId = (weekIdRaw == null || weekIdRaw.trim().isEmpty())
+                            ? "currentWeek"
+                            : weekIdRaw.trim();
 
-                    loadUserAvailabilityAndSetup(rv, days, shifts, canEdit);
+                    boolean isOpen = submissionOpen != null && submissionOpen;
+
+                    long now = System.currentTimeMillis();
+                    boolean hasDeadline = (deadlineMillis != null && deadlineMillis > 0);
+                    boolean beforeDeadline = !hasDeadline || now <= deadlineMillis;
+
+                    final boolean canEdit = isOpen && beforeDeadline;
+
+// 2) Load shift config (days / shift type)
+                    db.collection("settings").document("shift_config")
+                            .get()
+                            .addOnSuccessListener(shiftCfg -> {
+
+                                String workDays = shiftCfg.getString("workDays");
+                                String shiftType = shiftCfg.getString("shiftType");
+
+                                if (workDays == null) workDays = "SunThu";
+                                if (shiftType == null) shiftType = "2";
+
+                                List<String> days = buildDays(workDays);
+                                List<String> shifts = buildShifts(shiftType);
+
+                                loadUserAvailabilityAndSetup(rv, days, shifts, canEdit, btnSubmit, weekId);
+
+                                if (!canEdit) {
+                                    Toast.makeText(requireContext(),
+                                            "Submission is CLOSED (deadline passed / manager closed)",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(requireContext(),
+                                        "Failed to load shift settings: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+
+                                List<String> days = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu");
+                                List<String> shifts = Arrays.asList("Morning", "Evening");
+
+                                loadUserAvailabilityAndSetup(rv, days, shifts, canEdit, btnSubmit, weekId);
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Failed to load shift settings", Toast.LENGTH_SHORT).show();
+// If no scheduleConfig/currentWeek – default OPEN so the app continues
+                    Toast.makeText(requireContext(),
+                            "scheduleConfig/currentWeek not found - using default OPEN",
+                            Toast.LENGTH_LONG).show();
+
                     List<String> days = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu");
                     List<String> shifts = Arrays.asList("Morning", "Evening");
-                    loadUserAvailabilityAndSetup(rv, days, shifts, true);
+
+                    loadUserAvailabilityAndSetup(rv, days, shifts, true, btnSubmit, "currentWeek");
                 });
     }
 
     private void loadUserAvailabilityAndSetup(RecyclerView rv,
                                               List<String> days,
                                               List<String> shifts,
-                                              boolean canEdit) {
+                                              boolean canEdit,
+                                              @Nullable Button btnSubmit,
+                                              @NonNull String weekId) {
 
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
             Toast.makeText(requireContext(), "Not logged in", Toast.LENGTH_SHORT).show();
-            setupGrid(rv, days, shifts, new HashMap<>(), false, null);
+            setupGrid(rv, days, shifts, new HashMap<>(), false, null, weekId);
+            if (btnSubmit != null) btnSubmit.setEnabled(false);
             return;
         }
 
-        String uid = user.getUid();
+        final String uid = user.getUid();
 
-        db.collection("users").document(uid)
-                .get()
+// Firestore doc for this user's current week submission
+        final DocumentReference weekDocRef = db.collection("users")
+                .document(uid)
+                .collection("availabilityByWeek")
+                .document(weekId);
+
+// Submit button: mark submitted + submittedAt on the week doc
+        if (btnSubmit != null) {
+            btnSubmit.setEnabled(canEdit);
+            btnSubmit.setOnClickListener(v -> {
+                if (!canEdit) {
+                    Toast.makeText(requireContext(), "Submission is closed", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("submitted", true);
+                updates.put("submittedAt", FieldValue.serverTimestamp());
+                updates.put("exempt", false);
+                updates.put("exemptReason", "");
+
+// Use set(..., merge) pattern by updating + creating if missing:
+                weekDocRef.set(updates, com.google.firebase.firestore.SetOptions.merge())
+                        .addOnSuccessListener(unused ->
+                                Toast.makeText(requireContext(), "Submitted ✅", Toast.LENGTH_SHORT).show()
+                        )
+                        .addOnFailureListener(e ->
+                                Toast.makeText(requireContext(), "Submit failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+            });
+        }
+
+// Load existing availability from users/{uid}/availabilityByWeek/{weekId}
+        weekDocRef.get()
                 .addOnSuccessListener(doc -> {
                     Map<String, Boolean> availability = new HashMap<>();
 
@@ -116,11 +181,11 @@ public class ShiftScheduleFragment extends Fragment {
                         }
                     }
 
-                    setupGrid(rv, days, shifts, availability, canEdit, uid);
+                    setupGrid(rv, days, shifts, availability, canEdit, uid, weekId);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Failed to load availability", Toast.LENGTH_SHORT).show();
-                    setupGrid(rv, days, shifts, new HashMap<>(), canEdit, uid);
+                    Toast.makeText(requireContext(), "Failed to load availability: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    setupGrid(rv, days, shifts, new HashMap<>(), canEdit, uid, weekId);
                 });
     }
 
@@ -129,7 +194,8 @@ public class ShiftScheduleFragment extends Fragment {
                            List<String> shifts,
                            Map<String, Boolean> availability,
                            boolean canEdit,
-                           @Nullable String uid) {
+                           @Nullable String uid,
+                           @NonNull String weekId) {
 
         List<String> cells = buildCells(days, shifts);
         int columns = 1 + days.size();
@@ -148,8 +214,16 @@ public class ShiftScheduleFragment extends Fragment {
 
                     if (uid == null) return;
 
-                    db.collection("users").document(uid)
-                            .update("availability." + key, newValue)
+// Update nested field: availability.Sun_Morning = true/false
+                    db.collection("users")
+                            .document(uid)
+                            .collection("availabilityByWeek")
+                            .document(weekId)
+                            .set(new HashMap<String, Object>() {{
+                                put("availability", new HashMap<String, Object>() {{
+                                    put(key, newValue);
+                                }});
+                            }}, com.google.firebase.firestore.SetOptions.merge())
                             .addOnFailureListener(e ->
                                     Toast.makeText(requireContext(),
                                             "Save failed: " + e.getMessage(),
@@ -159,12 +233,7 @@ public class ShiftScheduleFragment extends Fragment {
         );
 
         rv.setAdapter(adapter);
-
-        if (!canEdit) {
-            Toast.makeText(requireContext(), "Submission is CLOSED (manager)", Toast.LENGTH_SHORT).show();
-        }
     }
-
 
     private List<String> buildCells(List<String> days, List<String> shifts) {
         List<String> cells = new ArrayList<>();

@@ -65,8 +65,10 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.CellVH
 
         boolean isHeader = (row == 0 || col == 0);
 
-        // תמיד לנקות קודם
+//we clean first.
         holder.tv.setOnClickListener(null);
+        holder.itemView.setOnClickListener(null);
+        holder.itemView.setClickable(false);
         holder.tv.setTypeface(null, Typeface.NORMAL);
 
         if (isHeader) {
@@ -75,7 +77,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.CellVH
             return;
         }
 
-        // Real cell => key: "Sun_Morning"
+// Real cell => key: "Sun_Morning"
         String day = days.get(col - 1);
         String shift = shifts.get(row - 1);
         String key = day + "_" + shift;
@@ -93,7 +95,9 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.CellVH
             holder.tv.setBackgroundResource(R.drawable.cell_red);
         }
 
-        holder.tv.setOnClickListener(v -> {
+     // click on the entire cell, not just the TextView
+        holder.itemView.setClickable(true);
+        holder.itemView.setOnClickListener(v -> {
             if (!canEdit) return;
 
             Boolean currentVal = availability.get(key);

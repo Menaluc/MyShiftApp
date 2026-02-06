@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_login">
 
-    <!-- ===== Main Content ===== -->
+    <!--- Main Content -->
     <LinearLayout
         android:id="@+id/contentManager"
         android:layout_width="match_parent"
@@ -47,9 +47,17 @@
             android:text="Manager Home (placeholder)"
             android:textColor="#4A63E7" />
 
+        <!--Debug button: Seed demo data -->
+        <Button
+            android:id="@+id/btnSeedDemo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Seed Demo Data (Debug)" />
+
     </LinearLayout>
 
-    <!-- ===== Right Drawer ===== -->
+    <!--  Right Drawer  -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/managerNavView"
         android:layout_width="wrap_content"

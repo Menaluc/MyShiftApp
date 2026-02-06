@@ -45,7 +45,7 @@ public class ManagerSettingsFragment extends Fragment {
     private RadioGroup rgWorkDays;
     private RadioButton rbSunThu, rbSunFri, rbSunSat;
 
-    // ✅ Deadline field (picker-based)
+    //Deadline field (picker-based)
     private EditText etSubmitCloseAt;
     private Long submitCloseAtMillis = null;
 
@@ -182,13 +182,13 @@ public class ManagerSettingsFragment extends Fragment {
         else if (rbSunSat.isChecked()) workDays = "SunSat";
         else workDays = "SunThu";
 
-        // ✅ If submissions are enabled, require a deadline
+// If submissions are open – there is deadline
         if (canSubmit && submitCloseAtMillis == null) {
             Toast.makeText(requireContext(), "Please choose a submission deadline", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Validation times
+// checking hours
         if (!isValidTime(morningStart) || !isValidTime(morningEnd) ||
                 !isValidTime(eveningStart) || !isValidTime(eveningEnd)) {
             Toast.makeText(requireContext(), "Please enter valid times (HH:MM)", Toast.LENGTH_SHORT).show();
@@ -223,6 +223,7 @@ public class ManagerSettingsFragment extends Fragment {
             return;
         }
 
+// ===== 1) settings/shift_config =====
         Map<String, Object> data = new HashMap<>();
         data.put("canSubmitConstraints", canSubmit);
         data.put("shiftType", shiftType);
@@ -238,11 +239,33 @@ public class ManagerSettingsFragment extends Fragment {
         data.put("employeesPerShift", employeesPerShift);
         data.put("workDays", workDays);
 
-        // ✅ Save deadline (millis)
+// We'll leave that too if we use it in the display.
         data.put("submitCloseAtMillis", submitCloseAtMillis);
 
-        db.collection(SETTINGS_COLLECTION).document(SETTINGS_DOC)
-                .set(data)
+// ===== 2) scheduleConfig/currentWeek (what the employee reads)=====
+        Map<String, Object> scheduleCfg = new HashMap<>();
+        scheduleCfg.put("submissionOpen", canSubmit);
+
+        //If the manager "closed" submissions – we can put 0
+        long deadlineToSave = (canSubmit && submitCloseAtMillis != null) ? submitCloseAtMillis : 0L;
+        scheduleCfg.put("submissionDeadlineMillis", deadlineToSave);
+
+
+        scheduleCfg.put("scheduleBuilt", false);
+
+// ===== Atomically saving two documents together =====
+        com.google.firebase.firestore.WriteBatch batch = db.batch();
+
+        com.google.firebase.firestore.DocumentReference shiftRef =
+                db.collection(SETTINGS_COLLECTION).document(SETTINGS_DOC);
+
+        com.google.firebase.firestore.DocumentReference scheduleRef =
+                db.collection("scheduleConfig").document("currentWeek");
+
+        batch.set(shiftRef, data);
+        batch.set(scheduleRef, scheduleCfg, com.google.firebase.firestore.SetOptions.merge());
+
+        batch.commit()
                 .addOnSuccessListener(unused -> {
                     tvStatus.setText("Settings saved successfully");
                     Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show();
@@ -313,7 +336,7 @@ public class ManagerSettingsFragment extends Fragment {
         return sdf.format(new Date(millis));
     }
 
-    // Very simple HH:MM validation (00-23 : 00-59)
+    // HH:MM validation (00-23 : 00-59)
     private boolean isValidTime(String t) {
         if (TextUtils.isEmpty(t)) return false;
         if (!t.matches("^\\d{2}:\\d{2}$")) return false;

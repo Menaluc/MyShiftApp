@@ -19,16 +19,29 @@
         android:name="com.example.myshiftapp.ManagerHomeFragment"
         android:label="Manager Home">
 
-        <!-- מעבר להגדרות מנהל -->
+
         <action
             android:id="@+id/action_managerHome_to_managerSettings"
             app:destination="@id/managerSettingsFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_managerEmployees"
+            app:destination="@id/managerEmployeesFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_managerBuildSchedule"
+            app:destination="@id/managerBuildScheduleFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/managerSettingsFragment"
         android:name="com.example.myshiftapp.ManagerSettingsFragment"
         android:label="Manager Settings" />
+
+    <fragment
+        android:id="@+id/managerEmployeesFragment"
+        android:name="com.example.myshiftapp.ManagerEmployeesFragment"
+        android:label="Employees and Constraints" />
 
     <fragment
         android:id="@+id/employeeScheduleFragment"
@@ -59,5 +72,10 @@
         android:id="@+id/employeePayslipsFragment"
         android:name="com.example.myshiftapp.EmployeePayslipsFragment"
         android:label="Payslips" />
+
+    <fragment
+        android:id="@+id/managerBuildScheduleFragment"
+        android:name="com.example.myshiftapp.ManagerBuildScheduleFragment"
+        android:label="Build Schedule" />
 
 </navigation>

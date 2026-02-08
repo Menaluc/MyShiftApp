@@ -33,75 +33,57 @@ public class EmployeeScheduleFragment extends Fragment {
 
         tvConfigSummary = view.findViewById(R.id.tvConfigSummary);
         tvSubmitStatus = view.findViewById(R.id.tvSubmitStatus);
+
         btnOpenAvailability = view.findViewById(R.id.btnOpenAvailability);
-        btnBack = view.findViewById(R.id.btnBack);
         btnViewFullSchedule = view.findViewById(R.id.btnViewFullSchedule);
+        btnBack = view.findViewById(R.id.btnBack);
 
         db = FirebaseFirestore.getInstance();
 
+// Back (NAV)
         btnBack.setOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
 
+// Open availability grid
         btnOpenAvailability.setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.shiftScheduleFragment);
         });
 
-        btnViewFullSchedule.setOnClickListener(v -> {
-            NavController navController = NavHostFragment.findNavController(this);
-            navController.navigate(R.id.employeeFullScheduleFragment);
-        });
+// Full schedule (Initially disabled until we know the ShiftSchedule has been published)
+        btnViewFullSchedule.setEnabled(false);
+        btnViewFullSchedule.setOnClickListener(v ->
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_employeeSchedule_to_fullSchedule)
+        );
 
-        loadShiftConfig();
-        loadScheduleBuiltStatus(); // ✅ חדש
+        loadShiftConfig(); // Displays shift description
+        loadScheduleStatus(); // Determines whether full ShiftSchedule + open/closed status can be seen
 
         return view;
     }
 
-    private void loadScheduleBuiltStatus() {
-// ברירת מחדל: לא פעיל עד שיש לו״ז
-        btnViewFullSchedule.setEnabled(false);
-
-        db.collection("scheduleConfig").document("currentWeek")
-                .get()
-                .addOnSuccessListener(cfg -> {
-                    Boolean built = cfg.getBoolean("scheduleBuilt");
-                    boolean isBuilt = (built != null && built);
-                    btnViewFullSchedule.setEnabled(isBuilt);
-
-                    if (!isBuilt) {
-// לא חייבים להציג הודעה, אבל נחמד:
-// tvSubmitStatus.setText(tvSubmitStatus.getText() + "\nSchedule not built yet.");
-                    }
-                })
-                .addOnFailureListener(e -> {
-// אם לא נטען, נשאיר disabled
-                    btnViewFullSchedule.setEnabled(false);
-                });
-    }
-
+    // =========================
+// 1) settings/shift_config (Description of shifts)
+// =========================
     private void loadShiftConfig() {
         db.collection("settings").document("shift_config")
                 .get()
-                .addOnSuccessListener(this::handleConfig)
+                .addOnSuccessListener(this::handleShiftConfig)
                 .addOnFailureListener(e -> {
-                    tvConfigSummary.setText("Failed to load settings.");
-                    tvSubmitStatus.setText(e.getMessage());
+                    tvConfigSummary.setText("Failed to load shift settings.");
                     btnOpenAvailability.setEnabled(false);
                 });
     }
 
-    private void handleConfig(DocumentSnapshot doc) {
+    private void handleShiftConfig(DocumentSnapshot doc) {
         if (doc == null || !doc.exists()) {
             tvConfigSummary.setText("No settings found. Ask manager to configure shifts.");
-            tvSubmitStatus.setText("");
             btnOpenAvailability.setEnabled(false);
             return;
         }
 
-        Boolean canSubmit = doc.getBoolean("canSubmitConstraints");
-        Long employeesPerShift = doc.getLong("employeesPerShift");
-        String shiftType = doc.getString("shiftType");
-        String workDays = doc.getString("workDays");
+        String shiftType = doc.getString("shiftType"); // "2"/"3"
+        String workDays = doc.getString("workDays"); // SunThu/SunFri/SunSat
 
         String morningStart = doc.getString("morningStart");
         String morningEnd = doc.getString("morningEnd");
@@ -110,7 +92,8 @@ public class EmployeeScheduleFragment extends Fragment {
         String nightStart = doc.getString("nightStart");
         String nightEnd = doc.getString("nightEnd");
 
-        if (canSubmit == null) canSubmit = false;
+        Long employeesPerShift = doc.getLong("employeesPerShift");
+
         if (shiftType == null) shiftType = "2";
         if (workDays == null) workDays = "SunThu";
 
@@ -118,22 +101,52 @@ public class EmployeeScheduleFragment extends Fragment {
         sb.append("Shift type: ").append(shiftType).append("\n\n");
         sb.append("Morning: ").append(ns(morningStart)).append(" - ").append(ns(morningEnd)).append("\n");
         sb.append("Evening: ").append(ns(eveningStart)).append(" - ").append(ns(eveningEnd)).append("\n");
+
         if ("3".equals(shiftType)) {
             sb.append("Night: ").append(ns(nightStart)).append(" - ").append(ns(nightEnd)).append("\n");
         }
+
         sb.append("\nEmployees per shift: ").append(employeesPerShift == null ? "?" : employeesPerShift).append("\n");
         sb.append("Work days: ").append(workDays).append("\n");
 
         tvConfigSummary.setText(sb.toString());
-
-        if (canSubmit) {
-            tvSubmitStatus.setText("Availability submission is OPEN");
-            btnOpenAvailability.setEnabled(true);
-        } else {
-            tvSubmitStatus.setText("Availability submission is CLOSED (waiting for manager)");
-            btnOpenAvailability.setEnabled(false);
-        }
+        btnOpenAvailability.setEnabled(true); // The entry into the table is actually determined within the ShiftScheduleFragment by deadline+switch
     }
 
-    private String ns(String s) { return (s == null || s.trim().isEmpty()) ? "?" : s; }
+    private String ns(String s) {
+        return (s == null || s.trim().isEmpty()) ? "-" : s.trim();
+    }
+
+    // =========================
+// 2) scheduleConfig/currentWeek (Status + ShiftSchedule Advertising)
+// =========================
+    private void loadScheduleStatus() {
+        db.collection("scheduleConfig").document("currentWeek")
+                .get()
+                .addOnSuccessListener(cfg -> {
+                    Boolean submissionOpen = cfg.getBoolean("submissionOpen");
+                    Long deadlineMillis = cfg.getLong("submissionDeadlineMillis");
+                    Boolean scheduleBuilt = cfg.getBoolean("scheduleBuilt");
+
+                    boolean isOpen = (submissionOpen != null && submissionOpen);
+
+                    long now = System.currentTimeMillis();
+                    boolean hasDeadline = (deadlineMillis != null && deadlineMillis > 0);
+                    boolean beforeDeadline = !hasDeadline || now <= deadlineMillis;
+
+                    if (isOpen && beforeDeadline) {
+                        tvSubmitStatus.setText("Availability submission is OPEN");
+                    } else {
+                        tvSubmitStatus.setText("Availability submission is CLOSED");
+                    }
+
+// Only if the administrator published/built a ShiftSchedule
+                    boolean canView = (scheduleBuilt != null && scheduleBuilt);
+                    btnViewFullSchedule.setEnabled(canView);
+                })
+                .addOnFailureListener(e -> {
+                    tvSubmitStatus.setText("Failed to load schedule status: " + e.getMessage());
+                    btnViewFullSchedule.setEnabled(false);
+                });
+    }
 }

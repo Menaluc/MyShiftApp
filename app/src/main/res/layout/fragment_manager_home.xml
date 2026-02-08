@@ -1,68 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/managerDrawer"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/contentManager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     android:background="@drawable/background_login">
 
-    <!--- Main Content -->
+    <!-- Top row: Welcome + Menu button -->
     <LinearLayout
-        android:id="@+id/contentManager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- Top row: Welcome + Menu button -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvWelcome"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Welcome"
-                android:textColor="#4A63E7"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <ImageButton
-                android:id="@+id/btnMenu"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="Menu"
-                android:src="@android:drawable/ic_menu_more" />
-        </LinearLayout>
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvWelcome"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Manager Home (placeholder)"
-            android:textColor="#4A63E7" />
+            android:layout_weight="1"
+            android:text="Welcome"
+            android:textColor="#4A63E7"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-        <!--Debug button: Seed demo data -->
-        <Button
-            android:id="@+id/btnSeedDemo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Seed Demo Data (Debug)" />
-
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Menu"
+            android:src="@android:drawable/ic_menu_more" />
     </LinearLayout>
 
-    <!--  Right Drawer  -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/managerNavView"
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        app:menu="@menu/menu_manager_drawer" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Manager Home (placeholder)"
+        android:textColor="#4A63E7" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    <!-- Debug button: Seed demo data -->
+    <Button
+        android:id="@+id/btnSeedDemo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Seed Demo Data (Debug)" />
+
+</LinearLayout>

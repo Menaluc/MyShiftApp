@@ -35,19 +35,11 @@
             android:text="Menu"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="16dp"/>
 
-        <TextView
-            android:id="@+id/menuProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Employee Profile"
-            android:textSize="16sp"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginBottom="4dp"/>
+        <!-- ========================= -->
+        <!-- EMPLOYEE MENU ITEMS -->
+        <!-- ========================= -->
 
         <TextView
             android:id="@+id/menuSchedule"
@@ -97,11 +89,71 @@
             android:focusable="true"
             android:layout_marginBottom="12dp"/>
 
+        <!-- Divider -->
+        <View
+            android:id="@+id/dividerEmployeeManager"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginVertical="10dp"/>
+
+        <!-- ========================= -->
+        <!-- MANAGER MENU ITEMS (from old menu_manager_drawer) -->
+        <!-- ========================= -->
+
         <TextView
             android:id="@+id/menuManagerSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manager Settings"
+            android:text="Settings"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/menuManagerEmployees"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Employees and Constraints"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/menuManagerBuildSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Build Schedule (AI)"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/menuManagerAttendanceApprovals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Attendance Approvals"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/menuManagerPayslips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Payslips"
             android:textSize="16sp"
             android:paddingVertical="12dp"
             android:paddingHorizontal="8dp"
@@ -109,6 +161,7 @@
             android:focusable="true"
             android:layout_marginBottom="12dp"/>
 
+        <!-- Logout (shared) -->
         <TextView
             android:id="@+id/menuLogout"
             android:layout_width="match_parent"

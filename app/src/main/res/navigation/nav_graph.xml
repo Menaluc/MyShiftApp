@@ -4,53 +4,58 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
+    <!-- ===================== -->
+    <!-- Auth / Entry -->
+    <!-- ===================== -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.myshiftapp.LoginFragment"
         android:label="Login" />
 
+    <!-- ===================== -->
+    <!-- Employee -->
+    <!-- ===================== -->
     <fragment
         android:id="@+id/employeeHomeFragment"
         android:name="com.example.myshiftapp.EmployeeHomeFragment"
-        android:label="Employee Home" />
+        android:label="Employee Home">
 
-    <fragment
-        android:id="@+id/managerHomeFragment"
-        android:name="com.example.myshiftapp.ManagerHomeFragment"
-        android:label="Manager Home">
-
+        <!-- Optional but useful: direct nav from Employee Home -->
+        <action
+            android:id="@+id/action_employeeHome_to_employeeSchedule"
+            app:destination="@id/employeeScheduleFragment" />
 
         <action
-            android:id="@+id/action_managerHome_to_managerSettings"
-            app:destination="@id/managerSettingsFragment" />
+            android:id="@+id/action_employeeHome_to_employeeAttendance"
+            app:destination="@id/employeeAttendanceFragment" />
 
         <action
-            android:id="@+id/action_managerHome_to_managerEmployees"
-            app:destination="@id/managerEmployeesFragment" />
+            android:id="@+id/action_employeeHome_to_employeeMonthlyDetails"
+            app:destination="@id/employeeMonthlyDetailsFragment" />
 
         <action
-            android:id="@+id/action_managerHome_to_managerBuildSchedule"
-            app:destination="@id/managerBuildScheduleFragment" />
-        <action
-            android:id="@+id/action_employeeSchedule_to_fullSchedule"
-            app:destination="@id/employeeFullScheduleFragment" />
-
+            android:id="@+id/action_employeeHome_to_employeePayslips"
+            app:destination="@id/employeePayslipsFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/managerSettingsFragment"
-        android:name="com.example.myshiftapp.ManagerSettingsFragment"
-        android:label="Manager Settings" />
-
-    <fragment
-        android:id="@+id/managerEmployeesFragment"
-        android:name="com.example.myshiftapp.ManagerEmployeesFragment"
-        android:label="Employees and Constraints" />
 
     <fragment
         android:id="@+id/employeeScheduleFragment"
         android:name="com.example.myshiftapp.EmployeeScheduleFragment"
-        android:label="Shift Schedule" />
+        android:label="Shift Schedule">
+
+        <action
+            android:id="@+id/action_employeeSchedule_to_fullSchedule"
+            app:destination="@id/employeeFullScheduleFragment" />
+
+        <action
+            android:id="@+id/action_employeeSchedule_to_attendance"
+            app:destination="@id/employeeAttendanceFragment" />
+
+        <!-- (אם יש לך כפתור "Open Availability") -->
+        <action
+            android:id="@+id/action_employeeSchedule_to_availabilityGrid"
+            app:destination="@id/shiftScheduleFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/shiftScheduleFragment"
@@ -58,9 +63,9 @@
         android:label="Availability Grid" />
 
     <fragment
-        android:id="@+id/employeeProfileFragment"
-        android:name="com.example.myshiftapp.EmployeeProfileFragment"
-        android:label="Employee Profile" />
+        android:id="@+id/employeeFullScheduleFragment"
+        android:name="com.example.myshiftapp.EmployeeFullScheduleFragment"
+        android:label="Weekly Schedule" />
 
     <fragment
         android:id="@+id/employeeAttendanceFragment"
@@ -77,27 +82,54 @@
         android:name="com.example.myshiftapp.EmployeePayslipsFragment"
         android:label="Payslips" />
 
+    <!-- ===================== -->
+    <!-- Manager -->
+    <!-- ===================== -->
+    <fragment
+        android:id="@+id/managerHomeFragment"
+        android:name="com.example.myshiftapp.ManagerHomeFragment"
+        android:label="Manager Home">
+
+        <action
+            android:id="@+id/action_managerHome_to_managerSettings"
+            app:destination="@id/managerSettingsFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_managerEmployees"
+            app:destination="@id/managerEmployeesFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_managerBuildSchedule"
+            app:destination="@id/managerBuildScheduleFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_managerAttendanceApprovals"
+            app:destination="@id/managerAttendanceApprovalsFragment" />
+
+        <action
+            android:id="@+id/action_managerHome_to_employeePayslips"
+            app:destination="@id/employeePayslipsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/managerSettingsFragment"
+        android:name="com.example.myshiftapp.ManagerSettingsFragment"
+        android:label="Manager Settings" />
+
+    <fragment
+        android:id="@+id/managerEmployeesFragment"
+        android:name="com.example.myshiftapp.ManagerEmployeesFragment"
+        android:label="Employees and Constraints" />
+
     <fragment
         android:id="@+id/managerBuildScheduleFragment"
         android:name="com.example.myshiftapp.ManagerBuildScheduleFragment"
         android:label="Build Schedule" />
-    <fragment
-        android:id="@+id/employeeFullScheduleFragment"
-        android:name="com.example.myshiftapp.EmployeeFullScheduleFragment"
-        android:label="Full Schedule" />
-    <fragment
-        android:id="@+id/employeeFullScheduleFragment"
-        android:name="com.example.myshiftapp.EmployeeFullScheduleFragment"
-        android:label="Weekly Schedule" />
-    <fragment
-        android:id="@+id/employeeScheduleFragment"
-        android:name="com.example.myshiftapp.EmployeeScheduleFragment"
-        android:label="Shift Schedule">
 
-        <action
-            android:id="@+id/action_employeeSchedule_to_fullSchedule"
-            app:destination="@id/employeeFullScheduleFragment" />
-    </fragment>
-
+    <!-- NEW: Manager Attendance Approvals -->
+    <fragment
+        android:id="@+id/managerAttendanceApprovalsFragment"
+        android:name="com.example.myshiftapp.ManagerAttendanceApprovalsFrg"
+        android:label="Attendance Approvals" />
 
 </navigation>

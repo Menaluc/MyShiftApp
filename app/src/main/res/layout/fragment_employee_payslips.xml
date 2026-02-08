@@ -3,12 +3,78 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Payslips (placeholder)"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:text="Payslip"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/tvMonth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Month:"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/tvRate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hourly rate:"
+        android:layout_marginTop="6dp"/>
+
+    <TextView
+        android:id="@+id/tvApprovedCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Approved records:"
+        android:layout_marginTop="6dp"/>
+
+    <TextView
+        android:id="@+id/tvTotalHours"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total hours:"
+        android:layout_marginTop="6dp"/>
+
+    <!-- NEW -->
+    <TextView
+        android:id="@+id/tvBasePay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Base pay:"
+        android:layout_marginTop="6dp"/>
+
+    <!-- NEW -->
+    <TextView
+        android:id="@+id/tvExtrasPay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Extras:"
+        android:layout_marginTop="6dp"/>
+
+    <TextView
+        android:id="@+id/tvGross"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gross pay:"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"/>
+
+    <Button
+        android:id="@+id/btnGeneratePayslip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Payslip"
+        android:layout_marginTop="16dp"/>
 </LinearLayout>

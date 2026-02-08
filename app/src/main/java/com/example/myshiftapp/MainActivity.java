@@ -7,8 +7,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -20,83 +20,129 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavController navController;
 
-    private TextView menuProfile, menuSchedule, menuAttendance, menuMonthly, menuPayslips;
-    private TextView menuManagerSettings, menuLogout;
+    // Employee menu items
+    private TextView menuSchedule, menuAttendance, menuMonthly, menuPayslips;
+
+    // Manager menu items
+    private TextView menuManagerSettings, menuManagerEmployees, menuManagerBuildSchedule;
+    private TextView menuManagerAttendanceApprovals, menuManagerPayslips;
+
+    // Shared
+    private TextView menuLogout;
+    private View dividerEmployeeManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+// DrawerLayout from activity_main.xml
         drawerLayout = findViewById(R.id.drawerLayout);
 
+// NavHost + NavController
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
         if (navHostFragment == null) {
-            throw new IllegalStateException("NavHostFragment not found. Check activity_main.xml id = nav_host_fragment");
+            throw new IllegalStateException(
+                    "NavHostFragment not found. Check activity_main.xml id = nav_host_fragment"
+            );
         }
 
         navController = navHostFragment.getNavController();
 
-// ===== Menu items =====
-        menuProfile = findViewById(R.id.menuProfile);
+// ===== Find views =====
+// Employee
         menuSchedule = findViewById(R.id.menuSchedule);
         menuAttendance = findViewById(R.id.menuAttendance);
         menuMonthly = findViewById(R.id.menuMonthly);
         menuPayslips = findViewById(R.id.menuPayslips);
+
+// Manager
         menuManagerSettings = findViewById(R.id.menuManagerSettings);
+        menuManagerEmployees = findViewById(R.id.menuManagerEmployees);
+        menuManagerBuildSchedule = findViewById(R.id.menuManagerBuildSchedule);
+        menuManagerAttendanceApprovals = findViewById(R.id.menuManagerAttendanceApprovals);
+        menuManagerPayslips = findViewById(R.id.menuManagerPayslips);
+
+// Shared
         menuLogout = findViewById(R.id.menuLogout);
 
-// ===== Click listeners (THIS is what was missing) =====
-        menuProfile.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "Profile clicked");
-            safeNavigate(R.id.employeeProfileFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
-        });
+// Divider between employee/manager sections (exists in activity_main.xml)
+        dividerEmployeeManager = findViewById(R.id.dividerEmployeeManager);
 
+// ===== Click listeners =====
+// Employee menu navigation
         menuSchedule.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "Schedule clicked");
+            Log.d("MENU_CLICK", "Employee Schedule clicked");
             safeNavigate(R.id.employeeScheduleFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
         });
 
         menuAttendance.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "Attendance clicked");
+            Log.d("MENU_CLICK", "Employee Attendance clicked");
             safeNavigate(R.id.employeeAttendanceFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
         });
 
         menuMonthly.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "Monthly clicked");
+            Log.d("MENU_CLICK", "Employee Monthly clicked");
             safeNavigate(R.id.employeeMonthlyDetailsFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
         });
 
         menuPayslips.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "Payslips clicked");
+            Log.d("MENU_CLICK", "Employee Payslips clicked");
             safeNavigate(R.id.employeePayslipsFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
         });
 
+// Manager menu navigation
         menuManagerSettings.setOnClickListener(v -> {
-            Log.d("MENU_CLICK", "ManagerSettings clicked");
+            Log.d("MENU_CLICK", "Manager Settings clicked");
             safeNavigate(R.id.managerSettingsFragment);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
         });
 
+        menuManagerEmployees.setOnClickListener(v -> {
+            Log.d("MENU_CLICK", "Manager Employees clicked");
+            safeNavigate(R.id.managerEmployeesFragment);
+            closeRightDrawer();
+        });
+
+        menuManagerBuildSchedule.setOnClickListener(v -> {
+            Log.d("MENU_CLICK", "Manager BuildSchedule clicked");
+            safeNavigate(R.id.managerBuildScheduleFragment);
+            closeRightDrawer();
+        });
+
+        menuManagerAttendanceApprovals.setOnClickListener(v -> {
+            Log.d("MENU_CLICK", "Manager AttendanceApprovals clicked");
+            safeNavigate(R.id.managerAttendanceApprovalsFragment);
+            closeRightDrawer();
+        });
+
+        menuManagerPayslips.setOnClickListener(v -> {
+            Log.d("MENU_CLICK", "Manager Payslips clicked");
+// Option A: Payslips per employee (using the existing EmployeePayslipsFragment)
+            safeNavigate(R.id.employeePayslipsFragment);
+            closeRightDrawer();
+        });
+
+// Logout (shared)
         menuLogout.setOnClickListener(v -> {
             Log.d("MENU_CLICK", "Logout clicked");
 
             FirebaseAuth.getInstance().signOut();
             UserStorage.clear(this);
 
+// Pop everything and go to login
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.loginFragment, true)
                     .build();
 
             navController.navigate(R.id.loginFragment, null, navOptions);
-            drawerLayout.closeDrawer(GravityCompat.END);
+            closeRightDrawer();
 
             updateDrawerMenu();
         });
@@ -116,6 +162,21 @@ public class MainActivity extends AppCompatActivity {
         updateDrawerMenu();
     }
 
+    /**
+     * Called by fragments (e.g., ManagerHomeFragment) to open the shared right drawer.
+     */
+    public void openRightDrawer() {
+        if (drawerLayout != null) {
+            drawerLayout.openDrawer(GravityCompat.END);
+        }
+    }
+
+    public void closeRightDrawer() {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END);
+        }
+    }
+
     private void updateDrawerMenu() {
         boolean isLoggedIn = FirebaseAuth.getInstance().getCurrentUser() != null;
         boolean isManager = UserStorage.isManager(this);
@@ -123,42 +184,63 @@ public class MainActivity extends AppCompatActivity {
         int dest = (navController.getCurrentDestination() != null)
                 ? navController.getCurrentDestination().getId() : -1;
 
+        boolean onLoginScreen = (dest == R.id.loginFragment);
+
         Log.d("MENU", "updateDrawerMenu: isLoggedIn=" + isLoggedIn
-                + " uidPref=" + UserStorage.getUid(this)
                 + " role=" + UserStorage.getRole(this)
                 + " isManager=" + isManager
                 + " dest=" + dest);
 
-        boolean onLoginScreen = (dest == R.id.loginFragment);
-
+// If not logged in (or on login screen) -> hide everything
         if (!isLoggedIn || onLoginScreen) {
-            menuProfile.setVisibility(View.GONE);
-            menuSchedule.setVisibility(View.GONE);
-            menuAttendance.setVisibility(View.GONE);
-            menuMonthly.setVisibility(View.GONE);
-            menuPayslips.setVisibility(View.GONE);
-            menuManagerSettings.setVisibility(View.GONE);
+            setEmployeeMenuVisible(false);
+            setManagerMenuVisible(false);
+            if (dividerEmployeeManager != null) dividerEmployeeManager.setVisibility(View.GONE);
             menuLogout.setVisibility(View.GONE);
             return;
         }
 
+// Logged in -> show logout
         menuLogout.setVisibility(View.VISIBLE);
 
+// Show only the relevant menu group
         if (isManager) {
-            menuProfile.setVisibility(View.GONE);
-            menuSchedule.setVisibility(View.GONE);
-            menuAttendance.setVisibility(View.GONE);
-            menuMonthly.setVisibility(View.GONE);
-            menuPayslips.setVisibility(View.GONE);
-            menuManagerSettings.setVisibility(View.VISIBLE);
+            setEmployeeMenuVisible(false);
+            setManagerMenuVisible(true);
         } else {
-            menuProfile.setVisibility(View.VISIBLE);
-            menuSchedule.setVisibility(View.VISIBLE);
-            menuAttendance.setVisibility(View.VISIBLE);
-            menuMonthly.setVisibility(View.VISIBLE);
-            menuPayslips.setVisibility(View.VISIBLE);
-            menuManagerSettings.setVisibility(View.GONE);
+            setEmployeeMenuVisible(true);
+            setManagerMenuVisible(false);
         }
+
+// Divider should appear only if BOTH sections are visible (usually never),
+// but keeping logic clean to avoid "floating divider" UI bug.
+        updateDividerVisibility();
+    }
+
+    private void setEmployeeMenuVisible(boolean visible) {
+        int v = visible ? View.VISIBLE : View.GONE;
+        menuSchedule.setVisibility(v);
+        menuAttendance.setVisibility(v);
+        menuMonthly.setVisibility(v);
+        menuPayslips.setVisibility(v);
+    }
+
+    private void setManagerMenuVisible(boolean visible) {
+        int v = visible ? View.VISIBLE : View.GONE;
+        menuManagerSettings.setVisibility(v);
+        menuManagerEmployees.setVisibility(v);
+        menuManagerBuildSchedule.setVisibility(v);
+        menuManagerAttendanceApprovals.setVisibility(v);
+        menuManagerPayslips.setVisibility(v);
+    }
+
+    private void updateDividerVisibility() {
+        if (dividerEmployeeManager == null) return;
+
+        boolean employeeVisible = (menuSchedule.getVisibility() == View.VISIBLE);
+        boolean managerVisible = (menuManagerSettings.getVisibility() == View.VISIBLE);
+
+        dividerEmployeeManager.setVisibility(employeeVisible && managerVisible ? View.VISIBLE : View.GONE);
     }
 
     private void safeNavigate(int destinationId) {

@@ -96,7 +96,7 @@ public class EmployeePayslipsFragment extends Fragment {
                     if (extrasPay != null) tvExtras.setText(String.format(Locale.getDefault(), "Extras: %.2f", extrasPay));
                     if (gross != null) tvGross.setText(String.format(Locale.getDefault(), "Gross pay: %.2f", gross));
 
-                    tvApprovedCount.setText("Loaded saved payslip ✅");
+                    tvApprovedCount.setText("Loaded saved payslip ");
                 });
     }
 
